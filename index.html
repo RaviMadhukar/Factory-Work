@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Garment Production System</title>
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+
+    body{
+      background:#f3f4f6;
+      padding:12px;
+    }
+
+    h1{
+      text-align:center;
+      margin-bottom:20px;
+      color:#111;
+      font-size:28px;
+    }
+
+    h2{
+      margin-bottom:15px;
+      color:#222;
+      font-size:20px;
+    }
+
+    /* Dashboard */
+
+    .top-box{
+      display:grid;
+      grid-template-columns:
+      repeat(auto-fit,minmax(140px,1fr));
+
+      gap:12px;
+      margin-bottom:20px;
+    }
+
+    .card{
+      background:white;
+      padding:18px;
+      border-radius:12px;
+      text-align:center;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .card h2{
+      font-size:16px;
+      margin-bottom:8px;
+    }
+
+    .card p{
+      font-size:24px;
+      font-weight:bold;
+    }
+
+    /* Forms */
+
+    .form-box{
+      background:white;
+      padding:18px;
+      border-radius:12px;
+      margin-bottom:20px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    select,
+    input{
+      width:100%;
+      padding:14px;
+      margin-bottom:12px;
+      border:1px solid #ccc;
+      border-radius:8px;
+      font-size:16px;
+      outline:none;
+    }
+
+    button{
+      width:100%;
+      padding:14px;
+      background:black;
+      color:white;
+      border:none;
+      border-radius:8px;
+      font-size:16px;
+      cursor:pointer;
+    }
+
+    button:hover{
+      opacity:0.9;
+    }
+
+    .reset-btn{
+      background:red;
+      margin-bottom:20px;
+    }
+
+    /* Tables */
+
+    .table-box{
+      overflow-x:auto;
+      background:white;
+      padding:15px;
+      border-radius:12px;
+      margin-bottom:20px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:600px;
+    }
+
+    th{
+      background:black;
+      color:white;
+      padding:12px;
+      font-size:14px;
+    }
+
+    td{
+      border:1px solid #ddd;
+      padding:12px;
+      text-align:center;
+      font-size:14px;
+    }
+
+    .pending{
+      color:red;
+      font-weight:bold;
+    }
+
+    .done{
+      color:green;
+      font-weight:bold;
+    }
+
+    /* Mobile */
+
+    @media(max-width:768px){
+
+      body{
+        padding:10px;
+      }
+
+      h1{
+        font-size:24px;
+      }
+
+      h2{
+        font-size:18px;
+      }
+
+      .top-box{
+        grid-template-columns:1fr;
+      }
+
+      .card{
+        padding:15px;
+      }
+
+      .card p{
+        font-size:22px;
+      }
+
+      .form-box{
+        padding:15px;
+      }
+
+      select,
+      input,
+      button{
+        font-size:15px;
+        padding:13px;
+      }
+
+      th,
+      td{
+        padding:10px;
+        font-size:13px;
+      }
+
+    }
+
+    @media(max-width:480px){
+
+      h1{
+        font-size:22px;
+      }
+
+      .card p{
+        font-size:20px;
+      }
+
+      table{
+        min-width:500px;
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <h1>Garment Production System</h1>
+
+  <!-- Dashboard -->
+
+  <div class="top-box">
+
+    <div class="card">
+      <h2>Total Cutting</h2>
+      <p id="totalCutting">0</p>
+    </div>
+
+    <div class="card">
+      <h2>Total Silai</h2>
+      <p id="totalSilai">0</p>
+    </div>
+
+    <div class="card">
+      <h2>Total Pending</h2>
+      <p id="totalPending">0</p>
+    </div>
+
+  </div>
+
+  <!-- Reset Button -->
+
+  <button
+    class="reset-btn"
+    onclick="resetAllData()"
+  >
+    Reset All Data
+  </button>
+
+  <!-- Cutting Form -->
+
+  <div class="form-box">
+
+    <h2>Add Cutting</h2>
+
+    <select id="cuttingDesign">
+
+      <option>Design 1</option>
+      <option>Design 2</option>
+      <option>Design 3</option>
+      <option>Design 4</option>
+      <option>Design 5</option>
+      <option>Design 6</option>
+
+    </select>
+
+    <input
+      type="number"
+      id="cuttingPcs"
+      placeholder="Enter Cutting PCS"
+    >
+
+    <button onclick="addCutting()">
+      Save Cutting
+    </button>
+
+  </div>
+
+  <!-- Silai Form -->
+
+  <div class="form-box">
+
+    <h2>Add Silai</h2>
+
+    <select id="silaiDesign">
+
+      <option>Design 1</option>
+      <option>Design 2</option>
+      <option>Design 3</option>
+      <option>Design 4</option>
+      <option>Design 5</option>
+      <option>Design 6</option>
+
+    </select>
+
+    <input
+      type="text"
+      id="sticherName"
+      placeholder="Enter Sticher Name"
+    >
+
+    <input
+      type="number"
+      id="silaiPcs"
+      placeholder="Enter Silai PCS"
+    >
+
+    <button onclick="addSilai()">
+      Save Silai
+    </button>
+
+  </div>
+
+  <!-- Design Wise Report -->
+
+  <div class="table-box">
+
+    <h2>Design Wise Report</h2>
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>Design</th>
+          <th>Cutting</th>
+          <th>Silai</th>
+          <th>Pending</th>
+          <th>Last Sticher</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody id="reportTable"></tbody>
+
+    </table>
+
+  </div>
+
+  <!-- Sticher Wise Report -->
+
+  <div class="table-box">
+
+    <h2>Sticher Wise Report</h2>
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>Sticher Name</th>
+          <th>Design</th>
+          <th>Stitch PCS</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody id="sticherTable"></tbody>
+
+    </table>
+
+  </div>
+
+  <script>
+
+    // Production Data
+
+    const productionData = {
+
+      "Design 1":{
+        cutting:0,
+        silai:0,
+        sticher:""
+      },
+
+      "Design 2":{
+        cutting:0,
+        silai:0,
+        sticher:""
+      },
+
+      "Design 3":{
+        cutting:0,
+        silai:0,
+        sticher:""
+      },
+
+      "Design 4":{
+        cutting:0,
+        silai:0,
+        sticher:""
+      },
+
+      "Design 5":{
+        cutting:0,
+        silai:0,
+        sticher:""
+      },
+
+      "Design 6":{
+        cutting:0,
+        silai:0,
+        sticher:""
+      }
+
+    };
+
+    // Sticher Data
+
+    let sticherData = [];
+
+    // Load Saved Data
+
+    if(localStorage.getItem("productionData")){
+
+      Object.assign(
+        productionData,
+        JSON.parse(localStorage.getItem("productionData"))
+      );
+
+    }
+
+    if(localStorage.getItem("sticherData")){
+
+      sticherData =
+        JSON.parse(localStorage.getItem("sticherData"));
+
+    }
+
+    // Save Data
+
+    function saveData(){
+
+      localStorage.setItem(
+        "productionData",
+        JSON.stringify(productionData)
+      );
+
+      localStorage.setItem(
+        "sticherData",
+        JSON.stringify(sticherData)
+      );
+
+    }
+
+    // Update Main Table
+
+    function updateTable(){
+
+      const table =
+        document.getElementById("reportTable");
+
+      table.innerHTML = "";
+
+      let totalCut = 0;
+      let totalSil = 0;
+
+      for(let design in productionData){
+
+        const cut =
+          productionData[design].cutting;
+
+        const sil =
+          productionData[design].silai;
+
+        const sticher =
+          productionData[design].sticher;
+
+        const pending = cut - sil;
+
+        totalCut += cut;
+        totalSil += sil;
+
+        table.innerHTML += `
+
+          <tr>
+
+            <td>${design}</td>
+
+            <td>${cut}</td>
+
+            <td>${sil}</td>
+
+            <td class="${
+              pending > 0 ? 'pending' : 'done'
+            }">
+
+              ${pending}
+
+            </td>
+
+            <td>${sticher}</td>
+
+          </tr>
+
+        `;
+      }
+
+      document.getElementById("totalCutting").innerText =
+        totalCut;
+
+      document.getElementById("totalSilai").innerText =
+        totalSil;
+
+      document.getElementById("totalPending").innerText =
+        totalCut - totalSil;
+
+      saveData();
+
+    }
+
+    // Update Sticher Table
+
+    function updateSticherTable(){
+
+      const table =
+        document.getElementById("sticherTable");
+
+      table.innerHTML = "";
+
+      sticherData.forEach(item => {
+
+        table.innerHTML += `
+
+          <tr>
+
+            <td>${item.name}</td>
+
+            <td>${item.design}</td>
+
+            <td>${item.pcs}</td>
+
+          </tr>
+
+        `;
+
+      });
+
+    }
+
+    // Add Cutting
+
+    function addCutting(){
+
+      const design =
+        document.getElementById("cuttingDesign").value;
+
+      const pcs =
+        Number(document.getElementById("cuttingPcs").value);
+
+      if(pcs <= 0){
+
+        alert("Enter valid PCS");
+        return;
+
+      }
+
+      productionData[design].cutting += pcs;
+
+      document.getElementById("cuttingPcs").value = "";
+
+      updateTable();
+
+    }
+
+    // Add Silai
+
+    function addSilai(){
+
+      const design =
+        document.getElementById("silaiDesign").value;
+
+      const sticher =
+        document.getElementById("sticherName").value;
+
+      const pcs =
+        Number(document.getElementById("silaiPcs").value);
+
+      if(pcs <= 0){
+
+        alert("Enter valid PCS");
+        return;
+
+      }
+
+      if(sticher === ""){
+
+        alert("Enter sticher name");
+        return;
+
+      }
+
+      productionData[design].silai += pcs;
+
+      productionData[design].sticher = sticher;
+
+      sticherData.push({
+
+        name: sticher,
+        design: design,
+        pcs: pcs
+
+      });
+
+      document.getElementById("silaiPcs").value = "";
+      document.getElementById("sticherName").value = "";
+
+      updateTable();
+      updateSticherTable();
+
+    }
+
+    // Reset All Data
+
+    function resetAllData(){
+
+      const confirmReset =
+        confirm(
+          "Are you sure you want to delete all data?"
+        );
+
+      if(!confirmReset){
+        return;
+      }
+
+      for(let design in productionData){
+
+        productionData[design].cutting = 0;
+        productionData[design].silai = 0;
+        productionData[design].sticher = "";
+
+      }
+
+      sticherData = [];
+
+      localStorage.removeItem("productionData");
+      localStorage.removeItem("sticherData");
+
+      updateTable();
+      updateSticherTable();
+
+      alert("All data reset successfully");
+
+    }
+
+    // First Load
+
+    updateTable();
+    updateSticherTable();
+
+  </script>
+
+</body>
+</html>
