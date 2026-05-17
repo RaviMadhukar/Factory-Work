@@ -228,7 +228,7 @@
     class="reset-btn"
     onclick="resetAllData()"
   >
-    Reset All Data
+    Refresh Data
   </button>
 
   <!-- Cutting Form -->
@@ -239,12 +239,12 @@
 
     <select id="cuttingDesign">
 
-      <option>New Green Floral (NGF)</option>
-      <option>Grey Floral (GF)</option>
-      <option>Brown Box (BB)</option>
-      <option>Grey Red Box (GRB)</option>
-      <option>Green Brown Box (GBB)</option>
-      <option>Maroon Patta (MP)</option>
+      <option>Design 1</option>
+      <option>Design 2</option>
+      <option>Design 3</option>
+      <option>Design 4</option>
+      <option>Design 5</option>
+      <option>Design 6</option>
 
     </select>
 
@@ -268,12 +268,12 @@
 
     <select id="silaiDesign">
 
-      <option>New Green Floral (NGF)</option>
-      <option>Grey Floral (GF)</option>
-      <option>Brown Box (BB)</option>
-      <option>Grey Red Box (GRB)</option>
-      <option>Green Brown Box (GBB)</option>
-      <option>Maroon Patta (MP)</option>
+      <option>Design 1</option>
+      <option>Design 2</option>
+      <option>Design 3</option>
+      <option>Design 4</option>
+      <option>Design 5</option>
+      <option>Design 6</option>
 
     </select>
 
@@ -362,7 +362,7 @@
     // =====================================
 
     const API_URL =
-    "https://script.google.com/macros/s/AKfycbz0EGwK96q46HgxZNx-NXIkWNkewz_vNMMjAp-BZwCDAPc1MpdJthjqiPakKtDXYUkm/exec";
+    "https://script.google.com/macros/s/AKfycbym45RXNHUMC8Ie-zge21S2kRSySkNqwPPLs0alEkwJotJk_x154A23U2VsAdvufn2f/exec";
 
     // =====================================
     // DATA
@@ -370,37 +370,37 @@
 
     const productionData = {
 
-      "New Green Floral (NGF)":{
+      "Design 1":{
         cutting:0,
         silai:0,
         sticher:""
       },
 
-      "Grey Floral (GF)":{
+      "Design 2":{
         cutting:0,
         silai:0,
         sticher:""
       },
 
-      "Brown Box (BB)":{
+      "Design 3":{
         cutting:0,
         silai:0,
         sticher:""
       },
 
-      "Grey Red Box (GRB)":{
+      "Design 4":{
         cutting:0,
         silai:0,
         sticher:""
       },
 
-      "Green Brown Box (GBB)":{
+      "Design 5":{
         cutting:0,
         silai:0,
         sticher:""
       },
 
-      "Maroon Patta (MP)":{
+      "Design 6":{
         cutting:0,
         silai:0,
         sticher:""
@@ -509,6 +509,76 @@
     }
 
     // =====================================
+    // LOAD GOOGLE SHEET DATA
+    // =====================================
+
+    async function loadGoogleSheetData(){
+
+      try{
+
+        const response =
+        await fetch(API_URL);
+
+        const data =
+        await response.json();
+
+        // RESET DATA
+
+        for(let design in productionData){
+
+          productionData[design].cutting = 0;
+          productionData[design].silai = 0;
+          productionData[design].sticher = "";
+
+        }
+
+        sticherData = [];
+
+        // LOAD DATA
+
+        data.forEach(item => {
+
+          if(item.type === "Cutting"){
+
+            productionData[item.design].cutting +=
+            Number(item.pcs);
+
+          }
+
+          if(item.type === "Silai"){
+
+            productionData[item.design].silai +=
+            Number(item.pcs);
+
+            productionData[item.design].sticher =
+            item.sticher;
+
+            sticherData.push({
+
+              date:item.date,
+              name:item.sticher,
+              design:item.design,
+              pcs:item.pcs
+
+            });
+
+          }
+
+        });
+
+        updateTable();
+        updateSticherTable();
+
+      }catch(error){
+
+        console.log(error);
+        alert("Google Sheet connection error");
+
+      }
+
+    }
+
+    // =====================================
     // ADD CUTTING
     // =====================================
 
@@ -528,8 +598,6 @@
         return;
 
       }
-
-      productionData[design].cutting += pcs;
 
       try{
 
@@ -553,17 +621,18 @@
 
         });
 
+        document.getElementById("cuttingPcs").value = "";
+
+        await loadGoogleSheetData();
+
+        alert("Cutting Saved");
+
       }catch(error){
 
         console.log(error);
+        alert("Save failed");
 
       }
-
-      document.getElementById("cuttingPcs").value = "";
-
-      updateTable();
-
-      alert("Cutting Saved");
 
     }
 
@@ -608,19 +677,6 @@
 
       }
 
-      productionData[design].silai += pcs;
-
-      productionData[design].sticher = sticher;
-
-      sticherData.push({
-
-        date:date,
-        name:sticher,
-        design:design,
-        pcs:pcs
-
-      });
-
       try{
 
         await fetch(API_URL,{
@@ -643,51 +699,29 @@
 
         });
 
+        document.getElementById("silaiPcs").value = "";
+        document.getElementById("sticherName").value = "";
+
+        await loadGoogleSheetData();
+
+        alert("Silai Saved");
+
       }catch(error){
 
         console.log(error);
+        alert("Save failed");
 
       }
-
-      document.getElementById("silaiPcs").value = "";
-      document.getElementById("sticherName").value = "";
-
-      updateTable();
-      updateSticherTable();
-
-      alert("Silai Saved");
 
     }
 
     // =====================================
-    // RESET
+    // REFRESH DATA
     // =====================================
 
     function resetAllData(){
 
-      const confirmReset =
-      confirm(
-        "Are you sure you want to delete all data?"
-      );
-
-      if(!confirmReset){
-        return;
-      }
-
-      for(let design in productionData){
-
-        productionData[design].cutting = 0;
-        productionData[design].silai = 0;
-        productionData[design].sticher = "";
-
-      }
-
-      sticherData = [];
-
-      updateTable();
-      updateSticherTable();
-
-      alert("All data reset successfully");
+      loadGoogleSheetData();
 
     }
 
@@ -695,8 +729,7 @@
     // FIRST LOAD
     // =====================================
 
-    updateTable();
-    updateSticherTable();
+    loadGoogleSheetData();
 
   </script>
 
