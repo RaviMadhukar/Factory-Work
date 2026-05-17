@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
-  >
+  />
 
   <title>Garment Production System</title>
 
@@ -367,7 +367,16 @@
 
   <script>
 
-    // Production Data
+    // =========================
+    // GOOGLE SHEET API URL
+    // =========================
+
+    const API_URL =
+    "https://script.google.com/macros/s/AKfycbwUqIUrQ018nEaq2JwUnC-afbG5U6LzfrPFOLneY2Z3KVezd6sfRVFOSP76sXQqVcHL/exec";
+
+    // =========================
+    // LOCAL DATA
+    // =========================
 
     const productionData = {
 
@@ -409,50 +418,16 @@
 
     };
 
-    // Sticher Data
-
     let sticherData = [];
 
-    // Load Saved Data
-
-    if(localStorage.getItem("productionData")){
-
-      Object.assign(
-        productionData,
-        JSON.parse(localStorage.getItem("productionData"))
-      );
-
-    }
-
-    if(localStorage.getItem("sticherData")){
-
-      sticherData =
-        JSON.parse(localStorage.getItem("sticherData"));
-
-    }
-
-    // Save Data
-
-    function saveData(){
-
-      localStorage.setItem(
-        "productionData",
-        JSON.stringify(productionData)
-      );
-
-      localStorage.setItem(
-        "sticherData",
-        JSON.stringify(sticherData)
-      );
-
-    }
-
-    // Update Main Table
+    // =========================
+    // UPDATE TABLE
+    // =========================
 
     function updateTable(){
 
       const table =
-        document.getElementById("reportTable");
+      document.getElementById("reportTable");
 
       table.innerHTML = "";
 
@@ -462,13 +437,13 @@
       for(let design in productionData){
 
         const cut =
-          productionData[design].cutting;
+        productionData[design].cutting;
 
         const sil =
-          productionData[design].silai;
+        productionData[design].silai;
 
         const sticher =
-          productionData[design].sticher;
+        productionData[design].sticher;
 
         const pending = cut - sil;
 
@@ -498,27 +473,28 @@
           </tr>
 
         `;
+
       }
 
-      document.getElementById("totalCutting").innerText =
-        totalCut;
+      document.getElementById("totalCutting")
+      .innerText = totalCut;
 
-      document.getElementById("totalSilai").innerText =
-        totalSil;
+      document.getElementById("totalSilai")
+      .innerText = totalSil;
 
-      document.getElementById("totalPending").innerText =
-        totalCut - totalSil;
-
-      saveData();
+      document.getElementById("totalPending")
+      .innerText = totalCut - totalSil;
 
     }
 
-    // Update Sticher Table
+    // =========================
+    // STICHER TABLE
+    // =========================
 
     function updateSticherTable(){
 
       const table =
-        document.getElementById("sticherTable");
+      document.getElementById("sticherTable");
 
       table.innerHTML = "";
 
@@ -542,86 +518,91 @@
 
     }
 
-    // Add Cutting
+    // =========================
+    // ADD CUTTING
+    // =========================
 
-    function addCutting(){
+    async function addCutting(){
 
-      const design =
-        document.getElementById("cuttingDesign").value;
+  const design =
+    document.getElementById("cuttingDesign").value;
 
-      const pcs =
-        Number(document.getElementById("cuttingPcs").value);
+  const pcs =
+    Number(document.getElementById("cuttingPcs").value);
 
-      if(pcs <= 0){
+  if(pcs <= 0){
+    alert("Enter valid PCS");
+    return;
+  }
 
-        alert("Enter valid PCS");
-        return;
+  await fetch(API_URL, {
 
-      }
+    method:"POST",
 
-      productionData[design].cutting += pcs;
+    body:JSON.stringify({
 
-      document.getElementById("cuttingPcs").value = "";
+      design:design,
+      sticher:"",
+      pcs:pcs,
+      type:"Cutting"
 
-      updateTable();
+    })
 
-    }
+  });
 
-    // Add Silai
+  alert("Cutting Saved");
 
-    function addSilai(){
+}
 
-      const design =
-        document.getElementById("silaiDesign").value;
+    // =========================
+    // ADD SILAI
+    // =========================
 
-      const sticher =
-        document.getElementById("sticherName").value;
+    async function addSilai(){
 
-      const pcs =
-        Number(document.getElementById("silaiPcs").value);
+  const design =
+    document.getElementById("silaiDesign").value;
 
-      if(pcs <= 0){
+  const sticher =
+    document.getElementById("sticherName").value;
 
-        alert("Enter valid PCS");
-        return;
+  const pcs =
+    Number(document.getElementById("silaiPcs").value);
 
-      }
+  if(pcs <= 0){
+    alert("Enter valid PCS");
+    return;
+  }
 
-      if(sticher === ""){
+  await fetch(API_URL, {
 
-        alert("Enter sticher name");
-        return;
+    method:"POST",
 
-      }
+    body:JSON.stringify({
 
-      productionData[design].silai += pcs;
+      design:design,
+      sticher:sticher,
+      pcs:pcs,
+      type:"Silai"
 
-      productionData[design].sticher = sticher;
+    })
 
-      sticherData.push({
+  });
 
-        name: sticher,
-        design: design,
-        pcs: pcs
+  alert("Silai Saved");
 
-      });
+}
 
-      document.getElementById("silaiPcs").value = "";
-      document.getElementById("sticherName").value = "";
-
-      updateTable();
-      updateSticherTable();
-
-    }
-
-    // Reset All Data
+    // =========================
+    // RESET
+    // =========================
 
     function resetAllData(){
 
       const confirmReset =
-        confirm(
-          "Are you sure you want to delete all data?"
-        );
+      confirm(
+        "Are you sure you want to delete all data?"
+      );
 
       if(!confirmReset){
         return;
@@ -637,17 +618,16 @@
 
       sticherData = [];
 
-      localStorage.removeItem("productionData");
-      localStorage.removeItem("sticherData");
-
       updateTable();
       updateSticherTable();
 
-      alert("All data reset successfully");
+      alert("All data reset");
 
     }
 
-    // First Load
+    // =========================
+    // FIRST LOAD
+    // =========================
 
     updateTable();
     updateSticherTable();
