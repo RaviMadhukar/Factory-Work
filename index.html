@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
-  />
+  >
 
   <title>Garment Production System</title>
 
@@ -368,14 +368,7 @@
   <script>
 
     // =========================
-    // GOOGLE SHEET API URL
-    // =========================
-
-    const API_URL =
-    "https://script.google.com/macros/s/AKfycbwUqIUrQ018nEaq2JwUnC-afbG5U6LzfrPFOLneY2Z3KVezd6sfRVFOSP76sXQqVcHL/exec";
-
-    // =========================
-    // LOCAL DATA
+    // DATA
     // =========================
 
     const productionData = {
@@ -421,7 +414,49 @@
     let sticherData = [];
 
     // =========================
-    // UPDATE TABLE
+    // LOAD SAVED DATA
+    // =========================
+
+    if(localStorage.getItem("productionData")){
+
+      Object.assign(
+        productionData,
+        JSON.parse(
+          localStorage.getItem("productionData")
+        )
+      );
+
+    }
+
+    if(localStorage.getItem("sticherData")){
+
+      sticherData =
+      JSON.parse(
+        localStorage.getItem("sticherData")
+      );
+
+    }
+
+    // =========================
+    // SAVE DATA
+    // =========================
+
+    function saveData(){
+
+      localStorage.setItem(
+        "productionData",
+        JSON.stringify(productionData)
+      );
+
+      localStorage.setItem(
+        "sticherData",
+        JSON.stringify(sticherData)
+      );
+
+    }
+
+    // =========================
+    // UPDATE MAIN TABLE
     // =========================
 
     function updateTable(){
@@ -485,10 +520,12 @@
       document.getElementById("totalPending")
       .innerText = totalCut - totalSil;
 
+      saveData();
+
     }
 
     // =========================
-    // STICHER TABLE
+    // UPDATE STICHER TABLE
     // =========================
 
     function updateSticherTable(){
@@ -522,76 +559,81 @@
     // ADD CUTTING
     // =========================
 
-    async function addCutting(){
+    function addCutting(){
 
-  const design =
-    document.getElementById("cuttingDesign").value;
+      const design =
+      document.getElementById("cuttingDesign").value;
 
-  const pcs =
-    Number(document.getElementById("cuttingPcs").value);
+      const pcs =
+      Number(
+        document.getElementById("cuttingPcs").value
+      );
 
-  if(pcs <= 0){
-    alert("Enter valid PCS");
-    return;
-  }
+      if(pcs <= 0){
 
-  await fetch(API_URL, {
+        alert("Enter valid PCS");
+        return;
 
-    method:"POST",
+      }
 
-    body:JSON.stringify({
+      productionData[design].cutting += pcs;
 
-      design:design,
-      sticher:"",
-      pcs:pcs,
-      type:"Cutting"
+      document.getElementById("cuttingPcs").value = "";
 
-    })
+      updateTable();
 
-  });
-
-  alert("Cutting Saved");
-
-}
+    }
 
     // =========================
     // ADD SILAI
     // =========================
 
-    async function addSilai(){
+    function addSilai(){
 
-  const design =
-    document.getElementById("silaiDesign").value;
+      const design =
+      document.getElementById("silaiDesign").value;
 
-  const sticher =
-    document.getElementById("sticherName").value;
+      const sticher =
+      document.getElementById("sticherName").value;
 
-  const pcs =
-    Number(document.getElementById("silaiPcs").value);
+      const pcs =
+      Number(
+        document.getElementById("silaiPcs").value
+      );
 
-  if(pcs <= 0){
-    alert("Enter valid PCS");
-    return;
-  }
+      if(pcs <= 0){
 
-  await fetch(API_URL, {
+        alert("Enter valid PCS");
+        return;
 
-    method:"POST",
+      }
 
-    body:JSON.stringify({
+      if(sticher === ""){
 
-      design:design,
-      sticher:sticher,
-      pcs:pcs,
-      type:"Silai"
+        alert("Enter sticher name");
+        return;
 
-    })
+      }
 
-  });
+      productionData[design].silai += pcs;
 
-  alert("Silai Saved");
+      productionData[design].sticher = sticher;
 
-}
+      sticherData.push({
+
+        name:sticher,
+        design:design,
+        pcs:pcs
+
+      });
+
+      document.getElementById("silaiPcs").value = "";
+      document.getElementById("sticherName").value = "";
+
+      updateTable();
+      updateSticherTable();
+
+    }
 
     // =========================
     // RESET
@@ -618,10 +660,13 @@
 
       sticherData = [];
 
+      localStorage.removeItem("productionData");
+      localStorage.removeItem("sticherData");
+
       updateTable();
       updateSticherTable();
 
-      alert("All data reset");
+      alert("All data reset successfully");
 
     }
 
