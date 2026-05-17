@@ -120,7 +120,7 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:600px;
+      min-width:700px;
     }
 
     th{
@@ -194,22 +194,6 @@
 
     }
 
-    @media(max-width:480px){
-
-      h1{
-        font-size:22px;
-      }
-
-      .card p{
-        font-size:20px;
-      }
-
-      table{
-        min-width:500px;
-      }
-
-    }
-
   </style>
 </head>
 
@@ -238,7 +222,7 @@
 
   </div>
 
-  <!-- Reset Button -->
+  <!-- Reset -->
 
   <button
     class="reset-btn"
@@ -255,12 +239,12 @@
 
     <select id="cuttingDesign">
 
-      <option>Design 1</option>
-      <option>Design 2</option>
-      <option>Design 3</option>
-      <option>Design 4</option>
-      <option>Design 5</option>
-      <option>Design 6</option>
+      <option>New Green Floral (NGF)</option>
+      <option>Grey Floral (GF)</option>
+      <option>Brown Box (BB)</option>
+      <option>Grey Red Box (GRB)</option>
+      <option>Green Brown Box (GBB)</option>
+      <option>Maroon Patta (MP)</option>
 
     </select>
 
@@ -284,12 +268,12 @@
 
     <select id="silaiDesign">
 
-      <option>Design 1</option>
-      <option>Design 2</option>
-      <option>Design 3</option>
-      <option>Design 4</option>
-      <option>Design 5</option>
-      <option>Design 6</option>
+      <option>New Green Floral (NGF)</option>
+      <option>Grey Floral (GF)</option>
+      <option>Brown Box (BB)</option>
+      <option>Grey Red Box (GRB)</option>
+      <option>Green Brown Box (GBB)</option>
+      <option>Maroon Patta (MP)</option>
 
     </select>
 
@@ -297,6 +281,11 @@
       type="text"
       id="sticherName"
       placeholder="Enter Sticher Name"
+    >
+
+    <input
+      type="date"
+      id="silaiDate"
     >
 
     <input
@@ -339,11 +328,11 @@
 
   </div>
 
-  <!-- Sticher Report -->
+  <!-- Date Wise Sticher Report -->
 
   <div class="table-box">
 
-    <h2>Sticher Wise Report</h2>
+    <h2>Date Wise Sticher Report</h2>
 
     <table>
 
@@ -351,9 +340,10 @@
 
         <tr>
 
+          <th>Date</th>
           <th>Sticher Name</th>
           <th>Design</th>
-          <th>Stitch PCS</th>
+          <th>PCS</th>
 
         </tr>
 
@@ -367,50 +357,50 @@
 
   <script>
 
-    // =========================
+    // =====================================
     // GOOGLE SHEET API URL
-    // =========================
+    // =====================================
 
     const API_URL =
     "https://script.google.com/macros/s/AKfycbz0EGwK96q46HgxZNx-NXIkWNkewz_vNMMjAp-BZwCDAPc1MpdJthjqiPakKtDXYUkm/exec";
 
-    // =========================
+    // =====================================
     // DATA
-    // =========================
+    // =====================================
 
     const productionData = {
 
-      "Design 1":{
+      "New Green Floral (NGF)":{
         cutting:0,
         silai:0,
         sticher:""
       },
 
-      "Design 2":{
+      "Grey Floral (GF)":{
         cutting:0,
         silai:0,
         sticher:""
       },
 
-      "Design 3":{
+      "Brown Box (BB)":{
         cutting:0,
         silai:0,
         sticher:""
       },
 
-      "Design 4":{
+      "Grey Red Box (GRB)":{
         cutting:0,
         silai:0,
         sticher:""
       },
 
-      "Design 5":{
+      "Green Brown Box (GBB)":{
         cutting:0,
         silai:0,
         sticher:""
       },
 
-      "Design 6":{
+      "Maroon Patta (MP)":{
         cutting:0,
         silai:0,
         sticher:""
@@ -420,9 +410,9 @@
 
     let sticherData = [];
 
-    // =========================
-    // UPDATE TABLE
-    // =========================
+    // =====================================
+    // UPDATE MAIN TABLE
+    // =====================================
 
     function updateTable(){
 
@@ -455,9 +445,7 @@
           <tr>
 
             <td>${design}</td>
-
             <td>${cut}</td>
-
             <td>${sil}</td>
 
             <td class="${
@@ -487,9 +475,9 @@
 
     }
 
-    // =========================
+    // =====================================
     // UPDATE STICHER TABLE
-    // =========================
+    // =====================================
 
     function updateSticherTable(){
 
@@ -503,6 +491,8 @@
         table.innerHTML += `
 
           <tr>
+
+            <td>${item.date}</td>
 
             <td>${item.name}</td>
 
@@ -518,9 +508,9 @@
 
     }
 
-    // =========================
+    // =====================================
     // ADD CUTTING
-    // =========================
+    // =====================================
 
     async function addCutting(){
 
@@ -549,9 +539,14 @@
 
           body:JSON.stringify({
 
+            date:new Date().toLocaleDateString(),
+
             design:design,
+
             sticher:"",
+
             pcs:pcs,
+
             type:"Cutting"
 
           })
@@ -572,9 +567,9 @@
 
     }
 
-    // =========================
+    // =====================================
     // ADD SILAI
-    // =========================
+    // =====================================
 
     async function addSilai(){
 
@@ -583,6 +578,9 @@
 
       const sticher =
       document.getElementById("sticherName").value;
+
+      const date =
+      document.getElementById("silaiDate").value;
 
       const pcs =
       Number(
@@ -603,12 +601,20 @@
 
       }
 
+      if(date === ""){
+
+        alert("Select date");
+        return;
+
+      }
+
       productionData[design].silai += pcs;
 
       productionData[design].sticher = sticher;
 
       sticherData.push({
 
+        date:date,
         name:sticher,
         design:design,
         pcs:pcs
@@ -623,9 +629,14 @@
 
           body:JSON.stringify({
 
+            date:date,
+
             design:design,
+
             sticher:sticher,
+
             pcs:pcs,
+
             type:"Silai"
 
           })
@@ -648,9 +659,9 @@
 
     }
 
-    // =========================
+    // =====================================
     // RESET
-    // =========================
+    // =====================================
 
     function resetAllData(){
 
@@ -680,9 +691,9 @@
 
     }
 
-    // =========================
+    // =====================================
     // FIRST LOAD
-    // =========================
+    // =====================================
 
     updateTable();
     updateSticherTable();
