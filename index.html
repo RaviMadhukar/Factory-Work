@@ -362,51 +362,13 @@
     // =====================================
 
     const API_URL =
-    "https://script.google.com/macros/s/AKfycbym45RXNHUMC8Ie-zge21S2kRSySkNqwPPLs0alEkwJotJk_x154A23U2VsAdvufn2f/exec";
+    "https://script.google.com/macros/s/AKfycbzV-Q_M0UZQSX8FA6sm7jfA5IrxEvezZovsABy42qBsIJhMd82TiPJi4Ku8zDiOlxF_/exec";
 
     // =====================================
     // DATA
     // =====================================
 
-    const productionData = {
-
-      "Design 1":{
-        cutting:0,
-        silai:0,
-        sticher:""
-      },
-
-      "Design 2":{
-        cutting:0,
-        silai:0,
-        sticher:""
-      },
-
-      "Design 3":{
-        cutting:0,
-        silai:0,
-        sticher:""
-      },
-
-      "Design 4":{
-        cutting:0,
-        silai:0,
-        sticher:""
-      },
-
-      "Design 5":{
-        cutting:0,
-        silai:0,
-        sticher:""
-      },
-
-      "Design 6":{
-        cutting:0,
-        silai:0,
-        sticher:""
-      }
-
-    };
+    const productionData = {};
 
     let sticherData = [];
 
@@ -512,71 +474,88 @@
     // LOAD GOOGLE SHEET DATA
     // =====================================
 
-    async function loadGoogleSheetData(){
+    
 
-      try{
+async function loadGoogleSheetData(){
 
-        const response =
-        await fetch(API_URL);
+  try{
 
-        const data =
-        await response.json();
+    const response =
+    await fetch(API_URL + "?t=" + Date.now());
 
-        // RESET DATA
+    const data =
+    await response.json();
 
-        for(let design in productionData){
+    // RESET
 
-          productionData[design].cutting = 0;
-          productionData[design].silai = 0;
-          productionData[design].sticher = "";
+    for(let key in productionData){
+      delete productionData[key];
+    }
 
-        }
+    sticherData = [];
 
-        sticherData = [];
+    // LOAD DATA
 
-        // LOAD DATA
+    data.forEach(item => {
 
-        data.forEach(item => {
+      // CREATE DESIGN AUTO
 
-          if(item.type === "Cutting"){
+      if(!productionData[item.design]){
 
-            productionData[item.design].cutting +=
-            Number(item.pcs);
+        productionData[item.design] = {
 
-          }
+          cutting:0,
+          silai:0,
+          sticher:""
 
-          if(item.type === "Silai"){
-
-            productionData[item.design].silai +=
-            Number(item.pcs);
-
-            productionData[item.design].sticher =
-            item.sticher;
-
-            sticherData.push({
-
-              date:item.date,
-              name:item.sticher,
-              design:item.design,
-              pcs:item.pcs
-
-            });
-
-          }
-
-        });
-
-        updateTable();
-        updateSticherTable();
-
-      }catch(error){
-
-        console.log(error);
-        alert("Google Sheet connection error");
+        };
 
       }
 
-    }
+      // CUTTING
+
+      if(item.type === "Cutting"){
+
+        productionData[item.design].cutting +=
+        Number(item.pcs);
+
+      }
+
+      // SILAI
+
+      if(item.type === "Silai"){
+
+        productionData[item.design].silai +=
+        Number(item.pcs);
+
+        productionData[item.design].sticher =
+        item.sticher;
+
+        sticherData.push({
+
+          date:item.date,
+          name:item.sticher,
+          design:item.design,
+          pcs:item.pcs
+
+        });
+
+      }
+
+    });
+
+    updateTable();
+    updateSticherTable();
+
+  }catch(error){
+
+    console.log(error);
+
+    alert("Load data failed");
+
+  }
+
+}
 
     // =====================================
     // ADD CUTTING
